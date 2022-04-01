@@ -3,15 +3,20 @@ Feature: Karate Functional Programming Examples
   Background:
     * url 'https://jsonplaceholder.typicode.com'
 
+  # It is a way to show how to use map/filter and currying
   Scenario: filter results
-    * def startWithLetterC = function(word) { return word.startsWith('c')}
-    * def getCommentBody = function(comment) { return comment.body }
+    * def fnStartWith = (startsWith) => word => word.startsWith(startsWith)
+    * def getCommentEmail = function(comment) { return comment.email }
     Given path 'comments'
     When method get
     Then status 200
-    * def allBodyComments = karate.map(response, getCommentBody)
-    * def allCommentWithC = karate.filter(allBodyComments, startWithLetterC)
-    * print allCommentWithC
+    # Gets a array of only comments emails
+    * def allBodyComments = karate.map(response, getCommentEmail)
+    # Gets an array of the email comments that start with c
+    * def allCommentWithC = karate.filter(allBodyComments, fnStartWith('c'))
+    # Using the JsonPath
+    * def allEmailStartingWithCJsonPath = karate.jsonPath(response, "$.[?(@.email =~ /^c.*/im)].email")
+    * print allEmailStartingWithCJsonPath
 
   Scenario: get all users and then get the first user by id
     Given path 'users'
